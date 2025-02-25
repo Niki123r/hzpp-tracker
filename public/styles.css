@@ -1,0 +1,36 @@
+* {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    padding: 0;
+    font-size: 97%;
+}
+
+#consistData {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+}
+
+#consistData > div {
+    text-align: start;
+}
+
+.trainImage {
+    border-bottom: 2px solid gray;
+    height: 50%;
+}
+
+.consistContainer {
+    display: flex;
+}
+
+.track {
+    background-color: gray;
+    height: 2px;
+}
+
+.wagon {
+    display: flex;
+    flex-direction: column;
+}
