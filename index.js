@@ -4,7 +4,7 @@ const app = express();
 const port = 3000;
 
 // HZPP Planner server token
-const token = "";
+const token = process.env.HZPP_TOKEN;
 
 class HZDelayParser {
   trainNumber;
