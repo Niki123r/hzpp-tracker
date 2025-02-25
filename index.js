@@ -181,6 +181,19 @@ app.get("/trainInfo/:trainNumber", async (req, res) => {
   res.status(200).json(data);
 });
 
+app.get("/api/img/:operator/:wagon", async (req, res) => {
+  const operator = req.params.operator;
+  const wagon = req.params.wagon;
+
+  const vagonWebRes = await fetch(
+    `https://www.vagonweb.cz/popisy/img/${operator}/${wagon}`
+  );
+  res.writeHead(200, { "Content-Type": "image/gif" });
+  //res.send(vagonWebRes);
+  const arrayBuffer = await vagonWebRes.arrayBuffer();
+  res.end(Buffer.from(arrayBuffer));
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

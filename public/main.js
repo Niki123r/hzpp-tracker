@@ -3,6 +3,8 @@ const trainNumber = params.get("trainNumber");
 
 const IMAGE_FOLDER = "./images/";
 let TRAINS;
+let WAGON_DATA;
+const GENERIC_IMAGE = "generic-loco.gif";
 
 console.log(trainNumber == null);
 
@@ -11,8 +13,27 @@ if (trainNumber != null) {
 }
 
 async function importTrainData() {
-  const data = await import("./data/trains.js");
+  let data = await import("./data/trains.js");
   TRAINS = data.TRAINS;
+  data = await fetch("./data/wagonTypes.json");
+  data = await data.json();
+  WAGON_DATA = data;
+}
+
+function getImageFromWagonDatabase(UICNumberString) {
+  let img = GENERIC_IMAGE;
+  let matcher = UICNumberString.slice(2, 8);
+
+  for (let entry of WAGON_DATA) {
+    if (entry.uic.slice(2, 8) == matcher) {
+      img = "/api" + entry.image.slice(30);
+      return {
+        img: img,
+        name: entry.kind.split("\n")[0],
+        operator: entry.operator,
+      };
+    }
+  }
 }
 
 function getImageFromUIC(UICNumberString, UICArray) {
@@ -20,7 +41,7 @@ function getImageFromUIC(UICNumberString, UICArray) {
   const classString = UICNumberString.slice(4, 8);
   const countryCodeString = UICArray[1];
 
-  let img = "generic-loco.gif";
+  let img = GENERIC_IMAGE;
   let name = undefined;
   let operator = undefined;
   for (let country of TRAINS) {
@@ -100,9 +121,12 @@ async function getTrainInfo(trainNumber) {
     const UICNumber = wagon.UIC;
     const UICArray = makeUICArray(wagon.UIC);
 
-    const wagonData = getImageFromUIC(UICNumber, UICArray);
-    const imgSrc = wagonData.img;
+    let wagonData = getImageFromUIC(UICNumber, UICArray);
+    if (wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE) {
+      wagonData = getImageFromWagonDatabase(UICNumber);
+    }
     console.log(wagonData);
+    const imgSrc = wagonData.img;
     let name = wagonData.name == undefined ? wagon.class : wagonData.name;
     const operator = wagonData.operator;
 
