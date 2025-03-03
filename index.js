@@ -6,6 +6,13 @@ const port = 3000;
 // HZPP Planner server token
 const token = process.env.HZPP_TOKEN;
 
+const TrainStatus = Object.freeze({
+  DEPARTURE: "Odlazak",
+  ARRIVAL: "Dolazak",
+  FORMED: "Formiran",
+  FINISHED: "Završio vožnju",
+});
+
 class HZDelayParser {
   trainNumber;
   compositionParser;
@@ -19,6 +26,7 @@ class HZDelayParser {
     const locationString = this.getCurrentDelayLocation();
     const delay = this.getCurrentDelay();
     const composition = this.getRawComposition();
+    const status = this.getStatus();
 
     let UIC = [];
     for (let wagon of composition) {
@@ -30,6 +38,7 @@ class HZDelayParser {
     return {
       stationName: locationString,
       delay: parseInt(delay),
+      status: status,
       composition: this.getCompositionData(composition),
     };
     console.log({
@@ -37,6 +46,54 @@ class HZDelayParser {
       delay: parseInt(delay),
       composition: this.getCompositionData(composition),
     });
+  }
+
+  getStatusString(trainStatus) {
+    let trainStatusString = null;
+
+    for (let status of Object.values(TrainStatus)) {
+      if (trainStatus.match(status) != null) {
+        trainStatusString = status;
+      }
+    }
+
+    return trainStatusString;
+  }
+
+  getStatus() {
+    const trainStatus = this.delayParser(
+      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > i:nth-child(1)"
+    ).text();
+
+    let trainStatusString = this.getStatusString(trainStatus);
+
+    if (trainStatusString == null) {
+      trainStatusString = this.getStatusString(
+        this.compositionParser(
+          "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)"
+        ).text()
+      );
+    }
+
+    let rawDateData = this.delayParser(
+      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > cr:nth-child(2)"
+    )
+      .text()
+      .slice(1)
+      .split(" ");
+
+    if (rawDateData[1] == null || rawDateData[1] == undefined) {
+      rawDateData = this.compositionParser(
+        "body > form:nth-child(3) > p:nth-child(1)"
+      ).children().length;
+      console.log(rawDateData);
+    }
+
+    return {
+      statusString: trainStatusString,
+      dateString: rawDateData[0],
+      timeString: rawDateData[2],
+    };
   }
 
   getCurrentDelayLocation() {

@@ -112,8 +112,14 @@ async function getTrainInfo(trainNumber) {
   let location = document.getElementById("location");
   location.textContent = json.stationName;
 
-  let delay = document.getElementById("delay");
-  delay.textContent = `Kasni ${json.delay} min.`;
+  let statusElement = document.getElementById("status");
+  console.log(json);
+  statusElement.textContent = `${json.status.statusString} ${json.status.dateString} ${json.status.timeString}`;
+
+  if (json.delay != null) {
+    let delay = document.getElementById("delay");
+    delay.textContent = `Kasni ${json.delay} min.`;
+  }
 
   let el = document.getElementById("consistData");
 
