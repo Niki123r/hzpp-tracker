@@ -41,11 +41,6 @@ class HZDelayParser {
       status: status,
       composition: this.getCompositionData(composition),
     };
-    console.log({
-      stationName: locationString,
-      delay: parseInt(delay),
-      composition: this.getCompositionData(composition),
-    });
   }
 
   getStatusString(trainStatus) {

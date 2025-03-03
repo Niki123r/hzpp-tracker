@@ -6,8 +6,6 @@ let TRAINS;
 let WAGON_DATA;
 const GENERIC_IMAGE = "generic-loco.gif";
 
-console.log(trainNumber == null);
-
 if (trainNumber != null) {
   getTrainInfo(trainNumber);
 }
@@ -105,7 +103,6 @@ function makeUICElement(UICArray) {
 
 async function getTrainInfo(trainNumber) {
   await importTrainData();
-  console.log(TRAINS);
   const res = await fetch(`./trainInfo/${trainNumber}`);
   const json = await res.json();
 
@@ -113,7 +110,6 @@ async function getTrainInfo(trainNumber) {
   location.textContent = json.stationName;
 
   let statusElement = document.getElementById("status");
-  console.log(json);
   statusElement.textContent = `${json.status.statusString} ${json.status.dateString} ${json.status.timeString}`;
 
   if (json.delay != null) {
@@ -131,7 +127,6 @@ async function getTrainInfo(trainNumber) {
     if (wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE) {
       wagonData = getImageFromWagonDatabase(UICNumber);
     }
-    console.log(wagonData);
     const imgSrc = wagonData.img;
     let name = wagonData.name == undefined ? wagon.class : wagonData.name;
     const operator = wagonData.operator;
@@ -154,7 +149,5 @@ async function getTrainInfo(trainNumber) {
     container.appendChild(uic);
 
     el.appendChild(container);
-
-    console.log(UICArray);
   }
 }
