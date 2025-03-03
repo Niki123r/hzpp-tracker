@@ -1,36 +1,55 @@
 * {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    padding: 0;
-    font-size: 97%;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  padding: 0;
 }
 
 #consistData {
-    overflow-x: auto;
-    scrollbar-width: thin;
-    display: flex;
-    flex-direction: row;
-    align-items: end;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
 }
 
 #consistData > div {
-    text-align: start;
+  text-align: start;
 }
 
 .trainImage {
-    border-bottom: 2px solid gray;
-    height: 50%;
+  border-bottom: 2px solid gray;
+  height: 50%;
+  margin-bottom: 0.1rem;
 }
 
 .consistContainer {
-    display: flex;
+  display: flex;
 }
 
 .track {
-    background-color: gray;
-    height: 2px;
+  background-color: gray;
+  height: 2px;
 }
 
 .wagon {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+}
+
+.delayed {
+  color: #f45d01;
+}
+
+.late {
+  color: #db1a4a;
+}
+
+.onTime {
+  color: #1f9876;
+}
+
+.infoContainer {
+  padding: 0.2rem;
+  padding-left: 0;
+  width: max-content;
 }

@@ -110,11 +110,21 @@ async function getTrainInfo(trainNumber) {
   location.textContent = json.stationName;
 
   let statusElement = document.getElementById("status");
-  statusElement.textContent = `${json.status.statusString} ${json.status.dateString} ${json.status.timeString}`;
+  statusElement.textContent = `${json.status.statusString} - ${json.status.timeString} (${json.status.dateString})`;
 
   if (json.delay != null) {
     let delay = document.getElementById("delay");
-    delay.textContent = `Kasni ${json.delay} min.`;
+    if (json.delay == 0) {
+      delay.textContent = `Vlak je redovit`;
+      delay.classList.add("onTime");
+    } else {
+      delay.textContent = `Kasni ${json.delay} min.`;
+      if (json.delay < 5) {
+        delay.classList.add("delayed");
+      } else {
+        delay.classList.add("late");
+      }
+    }
   }
 
   let el = document.getElementById("consistData");

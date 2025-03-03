@@ -1,5 +1,7 @@
 const cheerio = require("cheerio");
 const express = require("express");
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 const app = express();
 const port = 3000;
 
@@ -15,13 +17,18 @@ const TrainStatus = Object.freeze({
 
 class HZDelayParser {
   trainNumber;
+  compositionHTML;
   compositionParser;
+  delayHTML;
   delayParser;
 
   async getTrainInfo(trainNumber) {
     this.trainNumber = trainNumber;
-    this.compositionParser = cheerio.load(await this.getCompositionResponse());
-    this.delayParser = cheerio.load(await this.getDelayResponse());
+    this.compositionHTML = await this.getCompositionResponse();
+    this.compositionParser = cheerio.load(this.compositionHTML);
+
+    this.delayHTML = await this.getDelayResponse();
+    this.delayParser = cheerio.load(this.delayHTML);
 
     const locationString = this.getCurrentDelayLocation();
     const delay = this.getCurrentDelay();
@@ -77,17 +84,30 @@ class HZDelayParser {
       .slice(1)
       .split(" ");
 
+    let date = rawDateData[0];
+    let time = rawDateData[2];
+
     if (rawDateData[1] == null || rawDateData[1] == undefined) {
-      rawDateData = this.compositionParser(
-        "body > form:nth-child(3) > p:nth-child(1)"
-      ).children().length;
-      console.log(rawDateData);
+      const compositionDOM = new JSDOM(this.compositionHTML);
+      try {
+        rawDateData = compositionDOM.window.document
+          .querySelector(
+            "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)"
+          )
+          .nextSibling.textContent.slice(1)
+          .split(" ");
+        date = rawDateData[0];
+        time = rawDateData[1];
+      } catch (error) {
+        date = null;
+        time = null;
+      }
     }
 
     return {
       statusString: trainStatusString,
-      dateString: rawDateData[0],
-      timeString: rawDateData[2],
+      dateString: date,
+      timeString: time,
     };
   }
 
