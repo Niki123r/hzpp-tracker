@@ -5,6 +5,15 @@ const IMAGE_FOLDER = "./images/";
 let TRAINS;
 let WAGON_DATA;
 const GENERIC_IMAGE = "generic-loco.gif";
+const ROTATABLE = ["4111", "4121", "5111", "7121", "7123"];
+
+String.prototype.replaceAt = function (index, replacement) {
+  return (
+    this.substring(0, index) +
+    replacement +
+    this.substring(index + replacement.length)
+  );
+};
 
 if (trainNumber != null) {
   getTrainInfo(trainNumber);
@@ -106,8 +115,11 @@ async function getTrainInfo(trainNumber) {
   const res = await fetch(`./trainInfo/${trainNumber}`);
   const json = await res.json();
 
+  let train = document.getElementById("trainNumberInfo");
+  train.textContent = `Vlak ${trainNumber}:`;
+
   let location = document.getElementById("location");
-  location.textContent = json.stationName;
+  location.textContent = `Postaja: ${json.stationName}`;
 
   let statusElement = document.getElementById("status");
   statusElement.textContent = `${json.status.statusString} - ${json.status.timeString} (${json.status.dateString})`;
@@ -129,7 +141,8 @@ async function getTrainInfo(trainNumber) {
 
   let el = document.getElementById("consistData");
 
-  for (let wagon of json.composition) {
+  for (let i = 0; i < json.composition.length; i++) {
+    const wagon = json.composition[i];
     const UICNumber = wagon.UIC;
     const UICArray = makeUICArray(wagon.UIC);
 
@@ -137,9 +150,21 @@ async function getTrainInfo(trainNumber) {
     if (wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE) {
       wagonData = getImageFromWagonDatabase(UICNumber);
     }
-    const imgSrc = wagonData.img;
+    let imgSrc = wagonData.img;
     let name = wagonData.name == undefined ? wagon.class : wagonData.name;
     const operator = wagonData.operator;
+    console.log(imgSrc);
+
+    if (ROTATABLE.includes(UICNumber.slice(4, 8))) {
+      let index = imgSrc.length - 5;
+      if (i % 2 == 0) {
+        let char = imgSrc.at(index) == "a" ? "a" : "b";
+        imgSrc = imgSrc.replaceAt(index, char);
+      } else {
+        let char = imgSrc.at(index) == "b" ? "a" : "b";
+        imgSrc = imgSrc.replaceAt(imgSrc.length - 5, char);
+      }
+    }
 
     const container = document.createElement("div");
     container.setAttribute("class", "wagon");

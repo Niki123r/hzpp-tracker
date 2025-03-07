@@ -11,12 +11,15 @@
 </head>
 <body>
     <form action="" method="GET">
-        <input type="text" id="trainNumber" name="trainNumber" required pattern="^[0-9]*$">
-        <input type="submit" value="Submit">
+        <input type="text" id="trainNumber" name="trainNumber" required pattern="^[0-9]*$" placeholder="Broj vlaka">
+        <input type="submit" value="Dohvati">
     </form>
     </br>
     <b>
     <div class = "infoContainer">
+        <i>
+            <div id="trainNumberInfo"></div>
+        </i>
         <div id="location"></div>
         <div id="status"></div>
         <div id="delay"></div>

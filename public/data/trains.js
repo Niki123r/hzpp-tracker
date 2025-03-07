@@ -80,7 +80,8 @@ export const TRAINS = [
             subclass: [
               {
                 unitNumber: (unitNumber) => true,
-                img: "7121-0-b-a.gif",
+                img: "7121-0-b-b.gif",
+                img_backward: "7121-0-b-a.gif",
               },
             ],
           },
@@ -90,16 +91,19 @@ export const TRAINS = [
               {
                 unitNumber: (unitNumber) => unitNumber > 1 && unitNumber < 99,
                 img: "7121-0-a-a.gif",
+                img_backward: "7121-0-a-b.gif",
               },
               {
                 unitNumber: (unitNumber) =>
                   unitNumber > 100 && unitNumber < 200 && unitNumber % 2 == 0,
                 img: "7121-1-a-a.gif",
+                img_backward: "7121-1-a-b.gif",
               },
               {
                 unitNumber: (unitNumber) =>
                   unitNumber > 100 && unitNumber < 200 && unitNumber % 2 == 1,
-                img: "7121-1-b-a.gif",
+                img: "7121-1-b-b.gif",
+                img_backward: "7121-1-b-a.gif",
               },
             ],
           },
@@ -118,10 +122,12 @@ export const TRAINS = [
               {
                 unitNumber: (unitNumber) => unitNumber % 2 == 1,
                 img: "7123-a-pp-a.gif",
+                img_backward: "7123-a-pp-b.gif",
               },
               {
                 unitNumber: (unitNumber) => unitNumber % 2 == 0,
-                img: "7123-b-pp-a.gif",
+                img: "7123-b-pp-b.gif",
+                img_backward: "7123-b-pp-a.gif",
               },
             ],
           },
