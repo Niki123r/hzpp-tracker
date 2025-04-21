@@ -147,7 +147,11 @@ async function getTrainInfo(trainNumber) {
     const UICArray = makeUICArray(wagon.UIC);
 
     let wagonData = getImageFromUIC(UICNumber, UICArray);
-    if (wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE) {
+    let wagonDataDB = getImageFromWagonDatabase(UICNumber);
+    if (
+      wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE &&
+      wagonDataDB != undefined
+    ) {
       wagonData = getImageFromWagonDatabase(UICNumber);
     }
     let imgSrc = wagonData.img;
