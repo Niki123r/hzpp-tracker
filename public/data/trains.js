@@ -46,7 +46,7 @@ export const TRAINS = [
                 img: "6112-101-a.gif",
               },
               {
-                unitNumber: (unitNumber) => unitNumber > 1 && unitNumber < 99,
+                unitNumber: (unitNumber) => unitNumber >= 1 && unitNumber < 99,
                 img: "6112-0-a.gif",
               },
               {
@@ -98,7 +98,7 @@ export const TRAINS = [
             class: "7121",
             subclass: [
               {
-                unitNumber: (unitNumber) => unitNumber > 1 && unitNumber < 99,
+                unitNumber: (unitNumber) => unitNumber >= 1 && unitNumber < 99,
                 img: "7121-0-a-a.gif",
                 img_backward: "7121-0-a-b.gif",
               },
