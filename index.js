@@ -248,9 +248,12 @@ app.use(express.static("public"));
 app.get("/trainInfo/:trainNumber", async (req, res) => {
   const trainNumber = req.params.trainNumber;
 
-  const data = await delayParser.getTrainInfo(trainNumber);
-
-  res.status(200).json(data);
+  try {
+    const data = await delayParser.getTrainInfo(trainNumber);
+    res.status(200).json(data);
+  } catch {
+    res.status(500).json("Server error");
+  }
 });
 
 app.get("/api/img/:operator/:wagon", async (req, res) => {

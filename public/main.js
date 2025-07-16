@@ -115,6 +115,13 @@ async function getTrainInfo(trainNumber) {
   const res = await fetch(`./trainInfo/${trainNumber}`);
   const json = await res.json();
 
+  if (res.status != 200) {
+    let delay = document.getElementById("delay");
+    delay.textContent = "Pogreška pri dohvaćanju statusa vlaka.";
+    delay.classList.add("late");
+    return;
+  }
+
   let train = document.getElementById("trainNumberInfo");
   train.textContent = `Vlak ${trainNumber}:`;
 
