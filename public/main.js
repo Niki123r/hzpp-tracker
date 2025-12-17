@@ -29,10 +29,10 @@ async function importTrainData() {
 
 function getImageFromWagonDatabase(UICNumberString) {
   let img = GENERIC_IMAGE;
-  let matcher = UICNumberString.slice(2, 8);
+  let matcher = UICNumberString.slice(0, 8);
 
   for (let entry of WAGON_DATA) {
-    if (entry.uic.slice(2, 8) == matcher) {
+    if (entry.uic == matcher) {
       img = "/api" + entry.image.slice(30);
       return {
         img: img,
