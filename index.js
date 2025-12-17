@@ -1,12 +1,15 @@
 const cheerio = require("cheerio");
 const express = require("express");
 const jsdom = require("jsdom");
+require('dotenv').config();
 const { JSDOM } = jsdom;
 const app = express();
-const port = 3000;
+const port = 3001;
 
 // HZPP Planner server token
 const token = process.env.HZPP_TOKEN;
+
+console.log(token);
 
 const TrainStatus = Object.freeze({
   DEPARTURE: "Odlazak",
