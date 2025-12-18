@@ -27,12 +27,21 @@ async function importTrainData() {
   WAGON_DATA = data;
 }
 
-function getImageFromWagonDatabase(UICNumberString) {
-  let img = GENERIC_IMAGE;
-  let matcher = UICNumberString.slice(0, 8);
+function getImageFromWagonDatabaseStrict(UICNumberString) {
+  return getImageFromWagonSliceDatabase(UICNumberString, 0, 8);
+}
 
-  for (let entry of WAGON_DATA) {
-    if (entry.uic == matcher) {
+function getImageFromWagonDatabaseLeniant(UICNumberString) {
+  return getImageFromWagonSliceDatabase(UICNumberString, 2, 8);
+}
+
+function getImageFromWagonSliceDatabase(UICNumberString, sliceBegin, sliceEnd) {
+  let img = GENERIC_IMAGE;
+  let matcher = UICNumberString.slice(sliceBegin, sliceEnd);
+
+  for (let i = WAGON_DATA.length - 1; i >= 0; i--) {
+    const entry = WAGON_DATA[i];
+    if (entry.uic.slice(sliceBegin, sliceEnd) == matcher) {
       img = "/api" + entry.image.slice(30);
       return {
         img: img,
@@ -152,15 +161,18 @@ async function getTrainInfo(trainNumber) {
     const wagon = json.composition[i];
     const UICNumber = wagon.UIC;
     const UICArray = makeUICArray(wagon.UIC);
-
+    let wagonDataDB =
+      getImageFromWagonDatabaseStrict(UICNumber) ??
+      getImageFromWagonDatabaseLeniant(UICNumber);
     let wagonData = getImageFromUIC(UICNumber, UICArray);
-    let wagonDataDB = getImageFromWagonDatabase(UICNumber);
+
     if (
       wagonData.img == IMAGE_FOLDER + GENERIC_IMAGE &&
       wagonDataDB != undefined
     ) {
-      wagonData = getImageFromWagonDatabase(UICNumber);
+      wagonData = wagonDataDB;
     }
+
     let imgSrc = wagonData.img;
     let name = wagonData.name == undefined ? wagon.class : wagonData.name;
     const operator = wagonData.operator;
