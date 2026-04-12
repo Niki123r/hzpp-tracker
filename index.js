@@ -136,18 +136,22 @@ class HZDelayParser {
     let delay = this.getDelayFromArray(
       this.compositionParser("body > form:nth-child(3)").text().split("\n"),
     );
-    if (delay == undefined || true) {
-      delay = this.delayParser("html body form p font table tbody tr td font")
-        .text()
-        .split("\n");
-      delay = delay.filter((el) => el.trim() != "");
-      delay = delay[0];
-      delay = delay.match(/redovit|\d+/)[0];
+    if (delay == undefined) {
+      try {
+        delay = this.delayParser("html body form p font table tbody tr td font")
+          .text()
+          .split("\n");
+        delay = delay.filter((el) => el.trim() != "");
+        delay = delay[0];
+        delay = delay.match(/redovit|\d+/)[0];
 
-      if (delay == "redovit") {
-        delay = 0;
-      } else {
-        delay = parseInt(delay);
+        if (delay == "redovit") {
+          delay = 0;
+        } else {
+          delay = parseInt(delay);
+        }
+      } catch {
+        delay = undefined;
       }
     }
     return delay;
