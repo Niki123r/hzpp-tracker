@@ -65,7 +65,7 @@ class HZDelayParser {
 
   getStatus() {
     const trainStatus = this.delayParser(
-      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > i:nth-child(1)"
+      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > i:nth-child(1)",
     ).text();
 
     let trainStatusString = this.getStatusString(trainStatus);
@@ -73,13 +73,13 @@ class HZDelayParser {
     if (trainStatusString == null) {
       trainStatusString = this.getStatusString(
         this.compositionParser(
-          "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)"
-        ).text()
+          "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)",
+        ).text(),
       );
     }
 
     let rawDateData = this.delayParser(
-      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > cr:nth-child(2)"
+      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(1) > cr:nth-child(2)",
     )
       .text()
       .slice(1)
@@ -93,7 +93,7 @@ class HZDelayParser {
       try {
         rawDateData = compositionDOM.window.document
           .querySelector(
-            "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)"
+            "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > i:nth-child(7)",
           )
           .nextSibling.textContent.slice(1)
           .split(" ");
@@ -114,7 +114,7 @@ class HZDelayParser {
 
   getCurrentDelayLocation() {
     let location = this.delayParser(
-      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > strong:nth-child(2)"
+      "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > strong:nth-child(2)",
     )
       .text()
       .split("+");
@@ -122,7 +122,7 @@ class HZDelayParser {
 
     if (locationString == "undefined") {
       location = this.compositionParser(
-        "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > strong:nth-child(5)"
+        "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > strong:nth-child(5)",
       )
         .text()
         .split(" ")
@@ -133,9 +133,24 @@ class HZDelayParser {
   }
 
   getCurrentDelay() {
-    return this.getDelayFromArray(
-      this.compositionParser("body > form:nth-child(3)").text().split("\n")
+    let delay = this.getDelayFromArray(
+      this.compositionParser("body > form:nth-child(3)").text().split("\n"),
     );
+    if (delay == undefined || true) {
+      delay = this.delayParser("html body form p font table tbody tr td font")
+        .text()
+        .split("\n");
+      delay = delay.filter((el) => el.trim() != "");
+      delay = delay[0];
+      delay = delay.match(/redovit|\d+/)[0];
+
+      if (delay == "redovit") {
+        delay = 0;
+      } else {
+        delay = parseInt(delay);
+      }
+    }
+    return delay;
   }
 
   getCompositionData(composition) {
@@ -159,8 +174,8 @@ class HZDelayParser {
   getRawComposition() {
     return this.parseCompositionTable(
       this.compositionParser(
-        "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > font:nth-child(9) > font:nth-child(2) > strong:nth-child(3) > table:nth-child(1) > tbody:nth-child(1)"
-      )
+        "body > form:nth-child(3) > p:nth-child(1) > font:nth-child(1) > font:nth-child(9) > font:nth-child(2) > strong:nth-child(3) > table:nth-child(1) > tbody:nth-child(1)",
+      ),
     );
   }
 
@@ -171,7 +186,7 @@ class HZDelayParser {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     const html = await res.text();
     return html;
@@ -183,7 +198,7 @@ class HZDelayParser {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     const html = await res.text();
     return html;
@@ -262,7 +277,7 @@ app.get("/api/img/:operator/:wagon", async (req, res) => {
   const wagon = req.params.wagon;
 
   const vagonWebRes = await fetch(
-    `https://www.vagonweb.cz/popisy/img/${operator}/${wagon}`
+    `https://www.vagonweb.cz/popisy/img/${operator}/${wagon}`,
   );
   res.writeHead(200, { "Content-Type": "image/gif" });
   //res.send(vagonWebRes);
