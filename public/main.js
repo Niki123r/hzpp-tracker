@@ -119,6 +119,40 @@ function makeUICElement(UICArray) {
   return uic;
 }
 
+function dateTimeToTimeString(dateTime) {
+  //const dateTime = new Date();
+
+  let hours = dateTime.getHours();
+
+  if (hours < 10) {
+    hours = `0${hours}`;
+  }
+
+  let minutes = dateTime.getMinutes();
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
+
+  let seconds = dateTime.getSeconds();
+  if (seconds < 10) {
+    seconds = `0${seconds}`;
+  }
+
+  return `${hours}:${minutes}`;
+}
+
+function dateTimeToDateString(dateTime) {
+  //const dateTime = new Date();
+
+  let year = dateTime.getFullYear();
+
+  let month = dateTime.getMonth();
+
+  let day = dateTime.getDate();
+
+  return `${day}.${month + 1}.${year}`;
+}
+
 async function getTrainInfo(trainNumber) {
   await importTrainData();
   const res = await fetch(`./trainInfo/${trainNumber}`);
@@ -132,22 +166,41 @@ async function getTrainInfo(trainNumber) {
   }
 
   let train = document.getElementById("trainNumberInfo");
-  train.textContent = `Vlak ${trainNumber}:`;
+  train.textContent = `Vlak ${trainNumber}: ${json.Transportation[0].Start.Name} --> ${json.Transportation[0].Dest.Name}`;
+
+  if (json.Transportation[0].Delay == null) {
+    let delay = document.getElementById("delay");
+    delay.textContent = "Informacije o kašnjenju vlaka trenutno nisu dostupne.";
+    delay.classList.add("late");
+    return;
+  }
 
   let location = document.getElementById("location");
-  location.textContent = `Postaja: ${json.stationName}`;
+  location.textContent = `Postaja: ${json.Transportation[0].Delay.Station}`;
 
   let statusElement = document.getElementById("status");
-  statusElement.textContent = `${json.status.statusString} - ${json.status.timeString} (${json.status.dateString})`;
+  const currentStationID = json.Transportation[0].Delay.StationCode;
+  const currentStation = json.Transportation[0].Stops.Stop.find(
+    (stop) => stop.Station.ID == currentStationID,
+  );
 
-  if (json.delay != null) {
+  if (currentStation != null) {
+    let dateTime = currentStation.DepartureTime;
+    statusElement.textContent = `Predviđen polazak: ${dateTime.substring(0, 5)}`;
+  } else if (json.Transportation[0].Delay.FinishedAt != null) {
+    let dateTime = new Date(json.Transportation[0].Delay.FinishedAt);
+    statusElement.textContent = `Zabilježen: ${dateTimeToTimeString(dateTime)} (${dateTimeToDateString(dateTime)})`;
+  }
+
+  const delayAmount = json.Transportation[0].Delay.Delay;
+  if (delayAmount != null) {
     let delay = document.getElementById("delay");
-    if (json.delay == 0) {
+    if (delayAmount == 0) {
       delay.textContent = `Vlak je redovit`;
       delay.classList.add("onTime");
     } else {
-      delay.textContent = `Kasni ${json.delay} min.`;
-      if (json.delay < 5) {
+      delay.textContent = `Kasni ${delayAmount} min.`;
+      if (delayAmount < 5) {
         delay.classList.add("delayed");
       } else {
         delay.classList.add("late");
@@ -155,9 +208,12 @@ async function getTrainInfo(trainNumber) {
     }
   }
 
+  return;
+
   let el = document.getElementById("consistData");
 
   for (let i = 0; i < json.composition.length; i++) {
+    rotatableIndex = 0;
     const wagon = json.composition[i];
     const UICNumber = wagon.UIC;
     const UICArray = makeUICArray(wagon.UIC);
@@ -180,13 +236,14 @@ async function getTrainInfo(trainNumber) {
 
     if (ROTATABLE.includes(UICNumber.slice(4, 8))) {
       let index = imgSrc.length - 5;
-      if (i % 2 == 0) {
+      if (rotatableIndex % 2 == 0) {
         let char = imgSrc.at(index) == "a" ? "a" : "b";
         imgSrc = imgSrc.replaceAt(index, char);
       } else {
         let char = imgSrc.at(index) == "b" ? "a" : "b";
         imgSrc = imgSrc.replaceAt(imgSrc.length - 5, char);
       }
+      rotatableIndex += 1;
     }
 
     const container = document.createElement("div");
@@ -205,6 +262,11 @@ async function getTrainInfo(trainNumber) {
     const uic = makeUICElement(UICArray);
 
     container.appendChild(uic);
+
+    const tpvg = document.createElement("a");
+    tpvg.textContent = "tpvg";
+    tpvg.href = `https://tpvg.hzinfra.hr:7777/?vag=${UICNumber}`;
+    container.appendChild(tpvg);
 
     el.appendChild(container);
   }

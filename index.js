@@ -267,10 +267,19 @@ app.use(express.static("public"));
 
 app.get("/trainInfo/:trainNumber", async (req, res) => {
   const trainNumber = req.params.trainNumber;
-
   try {
-    const data = await delayParser.getTrainInfo(trainNumber);
-    res.status(200).json(data);
+    const data = await fetch(
+      `https://ispro-mid.hzpp.hr/hzpp-sales-middleware-web/journey-planning-train/trainId?trainId=${trainNumber}&lang=hr&deviceType=PHONE&clientUICOperatorCode=1178&trainType=0`,
+      {
+        headers: {
+          authorization: `${token}`,
+        },
+      },
+    );
+
+    const json = await data.json();
+
+    res.status(200).json(json);
   } catch {
     res.status(500).json("Server error");
   }
