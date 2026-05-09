@@ -184,12 +184,12 @@ async function getTrainInfo(trainNumber) {
     (stop) => stop.Station.ID == currentStationID,
   );
 
-  if (currentStation != null) {
-    let dateTime = currentStation.DepartureTime;
-    statusElement.textContent = `Predviđen polazak: ${dateTime.substring(0, 5)}`;
-  } else if (json.Transportation[0].Delay.FinishedAt != null) {
+  if (json.Transportation[0].Delay.FinishedAt != null) {
     let dateTime = new Date(json.Transportation[0].Delay.FinishedAt);
     statusElement.textContent = `Zabilježen: ${dateTimeToTimeString(dateTime)} (${dateTimeToDateString(dateTime)})`;
+  } else if (currentStation != null) {
+    let dateTime = currentStation.DepartureTime;
+    statusElement.textContent = `Predviđen polazak: ${dateTime.substring(0, 5)}`;
   }
 
   const delayAmount = json.Transportation[0].Delay.Delay;
