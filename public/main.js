@@ -158,6 +158,9 @@ async function getTrainInfo(trainNumber) {
   const res = await fetch(`./trainInfo/${trainNumber}`);
   const json = await res.json();
 
+  const delay = json.delay;
+  const composition = json.composition;
+
   if (res.status != 200) {
     let delay = document.getElementById("delay");
     delay.textContent = "Pogreška pri dohvaćanju statusa vlaka.";
@@ -166,57 +169,58 @@ async function getTrainInfo(trainNumber) {
   }
 
   let train = document.getElementById("trainNumberInfo");
-  train.textContent = `Vlak ${trainNumber}: ${json.Transportation[0].Start.Name} --> ${json.Transportation[0].Dest.Name}`;
+  train.textContent = `Vlak ${trainNumber}: ${delay.Transportation[0].Start.Name} --> ${delay.Transportation[0].Dest.Name}`;
 
-  if (json.Transportation[0].Delay == null) {
+  if (delay.Transportation[0].Delay == null) {
     let delay = document.getElementById("delay");
     delay.textContent = "Informacije o kašnjenju vlaka trenutno nisu dostupne.";
     delay.classList.add("late");
-    return;
-  }
+  } else {
+    let location = document.getElementById("location");
+    location.textContent = `Postaja: ${delay.Transportation[0].Delay.Station}`;
 
-  let location = document.getElementById("location");
-  location.textContent = `Postaja: ${json.Transportation[0].Delay.Station}`;
+    let statusElement = document.getElementById("status");
+    const currentStationID = delay.Transportation[0].Delay.StationCode;
+    const currentStation = delay.Transportation[0].Stops.Stop.find(
+      (stop) => stop.Station.ID == currentStationID,
+    );
 
-  let statusElement = document.getElementById("status");
-  const currentStationID = json.Transportation[0].Delay.StationCode;
-  const currentStation = json.Transportation[0].Stops.Stop.find(
-    (stop) => stop.Station.ID == currentStationID,
-  );
+    if (delay.Transportation[0].Delay.FinishedAt != null) {
+      let dateTime = new Date(delay.Transportation[0].Delay.FinishedAt);
+      statusElement.textContent = `Zabilježen: ${dateTimeToTimeString(dateTime)} (${dateTimeToDateString(dateTime)})`;
+    } else if (currentStation != null) {
+      let dateTime = currentStation.DepartureTime;
+      statusElement.textContent = `Predviđen polazak: ${dateTime.substring(0, 5)}`;
+    }
 
-  if (json.Transportation[0].Delay.FinishedAt != null) {
-    let dateTime = new Date(json.Transportation[0].Delay.FinishedAt);
-    statusElement.textContent = `Zabilježen: ${dateTimeToTimeString(dateTime)} (${dateTimeToDateString(dateTime)})`;
-  } else if (currentStation != null) {
-    let dateTime = currentStation.DepartureTime;
-    statusElement.textContent = `Predviđen polazak: ${dateTime.substring(0, 5)}`;
-  }
-
-  const delayAmount = json.Transportation[0].Delay.Delay;
-  if (delayAmount != null) {
-    let delay = document.getElementById("delay");
-    if (delayAmount == 0) {
-      delay.textContent = `Vlak je redovit`;
-      delay.classList.add("onTime");
-    } else {
-      delay.textContent = `Kasni ${delayAmount} min.`;
-      if (delayAmount < 5) {
-        delay.classList.add("delayed");
+    const delayAmount = delay.Transportation[0].Delay.Delay;
+    if (delayAmount != null) {
+      let delay = document.getElementById("delay");
+      if (delayAmount == 0) {
+        delay.textContent = `Vlak je redovit`;
+        delay.classList.add("onTime");
       } else {
-        delay.classList.add("late");
+        delay.textContent = `Kasni ${delayAmount} min.`;
+        if (delayAmount < 5) {
+          delay.classList.add("delayed");
+        } else {
+          delay.classList.add("late");
+        }
       }
     }
   }
 
-  return;
-
   let el = document.getElementById("consistData");
 
-  for (let i = 0; i < json.composition.length; i++) {
+  if (composition == null) {
+    return;
+  }
+
+  for (let i = 0; i < composition.wagon.length; i++) {
     rotatableIndex = 0;
-    const wagon = json.composition[i];
-    const UICNumber = wagon.UIC;
-    const UICArray = makeUICArray(wagon.UIC);
+    const wagon = composition.wagon[i];
+    const UICNumber = wagon.number;
+    const UICArray = makeUICArray(UICNumber);
     let wagonDataDB =
       getImageFromWagonDatabaseStrict(UICNumber) ??
       getImageFromWagonDatabaseLeniant(UICNumber);
@@ -229,21 +233,22 @@ async function getTrainInfo(trainNumber) {
       wagonData = wagonDataDB;
     }
 
+    console.log(UICNumber.slice(4, 8));
+
     let imgSrc = wagonData.img;
-    let name = wagonData.name == undefined ? wagon.class : wagonData.name;
+    let name = wagonData.name == undefined ? wagon.content : wagonData.name;
     const operator = wagonData.operator;
     console.log(imgSrc);
 
     if (ROTATABLE.includes(UICNumber.slice(4, 8))) {
       let index = imgSrc.length - 5;
-      if (rotatableIndex % 2 == 0) {
+      if (i % 2 == 0) {
         let char = imgSrc.at(index) == "a" ? "a" : "b";
         imgSrc = imgSrc.replaceAt(index, char);
       } else {
         let char = imgSrc.at(index) == "b" ? "a" : "b";
         imgSrc = imgSrc.replaceAt(imgSrc.length - 5, char);
       }
-      rotatableIndex += 1;
     }
 
     const container = document.createElement("div");
@@ -262,11 +267,6 @@ async function getTrainInfo(trainNumber) {
     const uic = makeUICElement(UICArray);
 
     container.appendChild(uic);
-
-    const tpvg = document.createElement("a");
-    tpvg.textContent = "tpvg";
-    tpvg.href = `https://tpvg.hzinfra.hr:7777/?vag=${UICNumber}`;
-    container.appendChild(tpvg);
 
     el.appendChild(container);
   }

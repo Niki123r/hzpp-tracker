@@ -8,6 +8,43 @@ export const TRAINS = [
         matchUIC: (UICNumber) => UICNumber[0] == "9",
         wagons: [
           {
+            class: "1141",
+            subclass: [
+              {
+                unitNumber: (unitNumber) => true,
+                img: "1141-m-a.gif",
+              },
+            ],
+          },
+          {
+            class: "1142",
+            subclass: [
+              {
+                unitNumber: (unitNumber) => unitNumber >= 7 && unitNumber <= 9,
+                img: "1142-m-a.gif",
+              },
+            ],
+          },
+          {
+            class: "1142",
+            subclass: [
+              {
+                unitNumber: (unitNumber) =>
+                  !(unitNumber >= 7 && unitNumber <= 9),
+                img: "1142-a.gif",
+              },
+            ],
+          },
+          {
+            class: "2044",
+            subclass: [
+              {
+                unitNumber: (unitNumber) => true,
+                img: "2044-a.gif",
+              },
+            ],
+          },
+          {
             class: "4111",
             subclass: [
               {

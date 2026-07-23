@@ -277,9 +277,33 @@ app.get("/trainInfo/:trainNumber", async (req, res) => {
       },
     );
 
+    const compData = await fetch(
+      `https://ispro-mid.hzpp.hr/hzpp-sales-middleware-web/train/composition/${trainNumber}`,
+      {
+        headers: {
+          authorization: `${token}`,
+        },
+      },
+    );
+
+    let compJson;
+    if (compData.status == 204) {
+      compJson = null;
+    } else {
+      compJson = await compData.json();
+      compJson.wagon.map((el) => {
+        if (el.image) {
+          delete el.image;
+        }
+      });
+    }
+
     const json = await data.json();
 
-    res.status(200).json(json);
+    res.status(200).json({
+      delay: json,
+      composition: compJson,
+    });
   } catch {
     res.status(500).json("Server error");
   }
