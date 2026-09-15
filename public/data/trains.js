@@ -131,6 +131,15 @@ export const TRAINS = [
             ],
           },
           {
+            class: "7024",
+            subclass: [
+              {
+                unitNumber: (unitNumber) => true,
+                img: "7024-a.gif",
+              },
+            ],
+          },
+          {
             class: "4121",
             subclass: [
               {
