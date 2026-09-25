@@ -153,6 +153,23 @@ function dateTimeToDateString(dateTime) {
   return `${day}.${month + 1}.${year}`;
 }
 
+function imageAttribution() {
+  const div = document.createElement("div");
+  const link = document.createElement("a");
+  link.href = "https://www.vagonweb.cz/";
+  link.text = "vagonweb";
+
+  const text = document.createElement("div");
+  text.textContent = "Slike vlakova: ";
+
+  div.text = "Slike vlakova: ";
+
+  div.appendChild(text);
+  text.appendChild(link);
+
+  return div;
+}
+
 async function getTrainInfo(trainNumber) {
   await importTrainData();
   const res = await fetch(`./trainInfo/${trainNumber}`);
@@ -270,4 +287,5 @@ async function getTrainInfo(trainNumber) {
 
     el.appendChild(container);
   }
+  document.body.appendChild(imageAttribution());
 }
